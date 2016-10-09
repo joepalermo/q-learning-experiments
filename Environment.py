@@ -1,9 +1,22 @@
 class Environment:
 
     def __init__(self):
+        # define the boundary of the Environment
         self.x_limit = 10
         self.y_limit = 10
-        self.goals = {(10,10): 100, (5,5): -100}
+        # define the action space
+        self.action_space = ["up", "left", "down", "right"]
+        # define a mapping from states to rewards
+        self.reward_map = {(10,10): 100, (5,5): -100}
+
+    def initialize_q_table(self):
+        q_table = {}
+        for x in range(1, self.x_limit+1):
+            for y in range(1, self.y_limit+1):
+                for action in action_space:
+                    state = (x, y)
+                    q_table[(state, action)] = 0
+        return q_table
 
     def stateTransition(self, state, action):
         (x, y) = state
@@ -30,7 +43,7 @@ class Environment:
 
     def reward(self, state, action):
         nextState = self.stateTransition(state, action)
-        if nextState in self.goals:
-            return self.goals[nextState]
+        if nextState in self.reward_map:
+            return self.reward_map[nextState]
         else:
             return 0
