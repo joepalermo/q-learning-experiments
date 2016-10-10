@@ -35,15 +35,6 @@ class Environment:
                     reward_map_with_actions[state_action_pair] = reward_map[state]
         return reward_map_with_actions
 
-    def initialize_q_table(self):
-        q_table = {}
-        for x in range(1, self.x_limit+1):
-            for y in range(1, self.y_limit+1):
-                for action in action_space:
-                    state = (x, y)
-                    q_table[(state, action)] = 0
-        return q_table
-
     def reset(self):
         x = randint(1, self.x_limit)
         y = randint(1, self.y_limit)
