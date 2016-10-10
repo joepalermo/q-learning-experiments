@@ -1,3 +1,5 @@
+from random import randint
+
 class Environment:
 
     def __init__(self):
@@ -41,6 +43,21 @@ class Environment:
                     state = (x, y)
                     q_table[(state, action)] = 0
         return q_table
+
+    def reset(self):
+        x = randint(1, self.x_limit)
+        y = randint(1, self.y_limit)
+        return (x, y)
+
+    def step(self, state, action):
+        next_state = self.state_transition(state, action)
+        reward = self.reward(state, action)
+        if reward == 100:
+            done = True
+        else:
+            done = False
+        return (next_state, reward, done)
+
 
     def state_transition(self, state, action):
         (x, y) = state
