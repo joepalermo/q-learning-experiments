@@ -6,8 +6,32 @@ class Environment:
         self.y_limit = 10
         # define the action space
         self.action_space = ["up", "left", "down", "right"]
-        # define a mapping from states to rewards
-        self.reward_map = {(10,10): 100, (5,5): -100}
+        # define a mapping from state to reward
+        # use it to generate a mapping from (state, action) to reward
+        # in this case we use the convention that
+        self.reward_map = \
+        Environment.add_actions_to_reward_map({ (10,10): 100,
+                                                (5,5): -100}, self.action_space)
+
+    @staticmethod
+    def add_actions_to_reward_map(reward_map, action_space):
+        reward_map_with_actions = {}
+        for state in reward_map:
+            for action in action_space:
+                (x, y) = state
+                if action == "up":
+                    state_action_pair = ((x,y-1), action)
+                    reward_map_with_actions[state_action_pair] = reward_map[state]
+                elif action == "left":
+                    state_action_pair = ((x+1,y), action)
+                    reward_map_with_actions[state_action_pair] = reward_map[state]
+                elif action == "down":
+                    state_action_pair = ((x,y+1), action)
+                    reward_map_with_actions[state_action_pair] = reward_map[state]
+                elif action == "right":
+                    state_action_pair = ((x-1,y), action)
+                    reward_map_with_actions[state_action_pair] = reward_map[state]
+        return reward_map_with_actions
 
     def initialize_q_table(self):
         q_table = {}
@@ -18,32 +42,31 @@ class Environment:
                     q_table[(state, action)] = 0
         return q_table
 
-    def stateTransition(self, state, action):
+    def state_transition(self, state, action):
         (x, y) = state
         if action == "up":
-            nextState = (x, y+1)
+            next_state = (x, y+1)
         elif action == "down":
-            nextState = (x, y-1)
+            next_state = (x, y-1)
         elif action == "left":
-            nextState = (x-1, y)
+            next_state = (x-1, y)
         elif action == "right":
-            nextState = (x+1, y)
+            next_state = (x+1, y)
         # check and correct for the possibility of state going out of bounds
-        if nextState[0] > self.x_limit:
-            return (self.x_limit, nextState[1])
-        elif nextState[1] > self.y_limit:
-            return (nextState[0], self.y_limit)
-        elif nextState[0] < 1:
-            return (1, nextState[1])
-        elif nextState[1] < 1:
-            return (nextState[0], 1)
+        if next_state[0] > self.x_limit:
+            return (self.x_limit, next_state[1])
+        elif next_state[1] > self.y_limit:
+            return (next_state[0], self.y_limit)
+        elif next_state[0] < 1:
+            return (1, next_state[1])
+        elif next_state[1] < 1:
+            return (next_state[0], 1)
         # else in bounds
         else:
-            return nextState
+            return next_state
 
     def reward(self, state, action):
-        nextState = self.stateTransition(state, action)
-        if nextState in self.reward_map:
-            return self.reward_map[nextState]
+        if (state, action) in self.reward_map:
+            return self.reward_map[(state, action)]
         else:
             return 0
