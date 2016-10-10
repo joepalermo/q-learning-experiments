@@ -1,27 +1,29 @@
-
+from random import shuffle
 
 class Q_Table:
 
     def __init__(self, env):
-        self.q_table = self.initialize_q_table(env)
+        self.action_space = env.action_space
+        self.q_table = env.initialize_q_table()
 
-
-    def initialize_q_table(self, env):
-        self.q_table = {}
-        for x in range(1, env.x_limit+1):
-            for y in range(1, env.y_limit+1):
-                for action in env.action_space:
-                    state = (x, y)
-                    q_table[(state, action)] = 0
-        return q_table
-
-    # return the best action according to current values in Q-Table
-    def get_action(self, state, env):
+    # get the best action from a given state according to current Q-Table
+    def get_best_action(self, state):
+        # get a shuffled version of self.action_space so that actions are chosen
+        # in random order, preventing an agent from getting stuck on an edge
+        action_space = list(self.action_space)
+        shuffle(action_space)
+        action = action_space[0]
         # best_action -> (current best action, corresponding reward)
-        action = env.action_space[0]
-        best_action = (action, env.reward(state, action))
-        for i_action in range(1, len(env.action_space)):
-            action = env.action_space[i]
-            if env.reward(state, action) > best_action[1]:
-                best_action = (action, env.reward(state, action))
+        best_action = (action, self.q_table[(state, action)])
+        for i in range(1, len(action_space)):
+            action = action_space[i]
+            if self.q_table[(state, action)] > best_action[1]:
+                best_action = (action, self.q_table[(state, action)])
         return best_action[0]
+
+    def update(self, step_data, gamma):
+        (state, action, reward, next_state) = step_data
+        best_next_action = self.get_best_action(next_state)
+        self.q_table[(state, action)] = \
+        reward + \
+        gamma * self.q_table[(next_state, best_next_action)]

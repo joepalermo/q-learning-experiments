@@ -4,16 +4,17 @@ class Environment:
 
     def __init__(self):
         # define the boundary of the Environment
-        self.x_limit = 10
-        self.y_limit = 10
+        self.x_limit = 4
+        self.y_limit = 2
         # define the action space
         self.action_space = ["up", "left", "down", "right"]
         # define a mapping from state to reward
         # use it to generate a mapping from (state, action) to reward
         # in this case we use the convention that
+        self.goal_reward = 100
         self.reward_map = \
-        Environment.add_actions_to_reward_map({ (10,10): 100,
-                                                (5,5): -100}, self.action_space)
+        Environment.add_actions_to_reward_map({ (4,2): self.goal_reward },
+                                                self.action_space)
 
     @staticmethod
     def add_actions_to_reward_map(reward_map, action_space):
@@ -22,18 +23,27 @@ class Environment:
             for action in action_space:
                 (x, y) = state
                 if action == "up":
-                    state_action_pair = ((x,y-1), action)
+                    state_action_pair = ((x,y+1), action)
                     reward_map_with_actions[state_action_pair] = reward_map[state]
                 elif action == "left":
                     state_action_pair = ((x+1,y), action)
                     reward_map_with_actions[state_action_pair] = reward_map[state]
                 elif action == "down":
-                    state_action_pair = ((x,y+1), action)
+                    state_action_pair = ((x,y-1), action)
                     reward_map_with_actions[state_action_pair] = reward_map[state]
                 elif action == "right":
                     state_action_pair = ((x-1,y), action)
                     reward_map_with_actions[state_action_pair] = reward_map[state]
         return reward_map_with_actions
+
+    def initialize_q_table(self):
+        q_table = {}
+        for x in range(1, self.x_limit+1):
+            for y in range(1, self.y_limit+1):
+                for action in self.action_space:
+                    state = (x, y)
+                    q_table[(state, action)] = 0
+        return q_table
 
     def reset(self):
         x = randint(1, self.x_limit)
@@ -43,7 +53,7 @@ class Environment:
     def step(self, state, action):
         next_state = self.state_transition(state, action)
         reward = self.reward(state, action)
-        if reward == 100:
+        if reward == self.goal_reward:
             done = True
         else:
             done = False
@@ -53,9 +63,9 @@ class Environment:
     def state_transition(self, state, action):
         (x, y) = state
         if action == "up":
-            next_state = (x, y+1)
-        elif action == "down":
             next_state = (x, y-1)
+        elif action == "down":
+            next_state = (x, y+1)
         elif action == "left":
             next_state = (x-1, y)
         elif action == "right":
