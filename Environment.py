@@ -4,14 +4,15 @@ class Environment:
 
     def __init__(self):
         # define the boundary of the Environment
-        self.x_limit = 4
-        self.y_limit = 2
+        self.x_limit = 8
+        self.y_limit = 8
         # define the action space
         self.action_space = ["up", "left", "down", "right"]
         # define a mapping from state to reward
         # use it to generate a mapping from (state, action) to reward
         # in this case we use the convention that
         self.goal_reward = 100
+        self.goal_states = [(4,2)]
         self.reward_map = \
         Environment.add_actions_to_reward_map({ (4,2): self.goal_reward },
                                                 self.action_space)
@@ -46,8 +47,11 @@ class Environment:
         return q_table
 
     def reset(self):
-        x = randint(1, self.x_limit)
-        y = randint(1, self.y_limit)
+        while True:
+            x = randint(1, self.x_limit)
+            y = randint(1, self.y_limit)
+            if (x, y) not in self.goal_states:
+                break
         return (x, y)
 
     def step(self, state, action):
