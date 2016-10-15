@@ -4,17 +4,17 @@ class Environment:
 
     def __init__(self):
         # define the boundary of the Environment
-        self.x_limit = 8
-        self.y_limit = 8
+        self.x_limit = 5
+        self.y_limit = 5
         # define the action space
         self.action_space = ["up", "left", "down", "right"]
         # define a mapping from state to reward
         # use it to generate a mapping from (state, action) to reward
         # in this case we use the convention that
         self.goal_reward = 100
-        self.goal_states = [(4,2)]
+        self.goal_states = [(5,5)]
         self.reward_map = \
-        Environment.add_actions_to_reward_map({ (4,2): self.goal_reward },
+        Environment.add_actions_to_reward_map({ (5,5): self.goal_reward },
                                                 self.action_space)
 
     @staticmethod
