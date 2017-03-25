@@ -8,35 +8,39 @@ class Environment:
         self.y_limit = 5
         # define the action space
         self.action_space = ["up", "left", "down", "right"]
-        # define a mapping from state to reward
-        # use it to generate a mapping from (state, action) to reward
-        # in this case we use the convention that
+        # define the reward value of a goal state
         self.goal_reward = 100
+        # define the goal states
         self.goal_states = [(5,5)]
-        self.reward_map = \
-        Environment.add_actions_to_reward_map({ (5,5): self.goal_reward },
-                                                self.action_space)
+        # construct a map from states to rewards
+        self.state_to_reward = {(5,5): self.goal_reward}
+        # construct a map from state-actions pairs to reward
+        self.construct_reward_map()
 
-    @staticmethod
-    def add_actions_to_reward_map(reward_map, action_space):
-        reward_map_with_actions = {}
-        for state in reward_map:
-            for action in action_space:
+    # construct a map from state-action pairs to reward
+    def construct_reward_map(self):
+        self.reward_map = {}
+        for state in self.state_to_reward:
+            for action in self.action_space:
                 (x, y) = state
                 if action == "up":
                     state_action_pair = ((x,y+1), action)
-                    reward_map_with_actions[state_action_pair] = reward_map[state]
+                    self.reward_map[state_action_pair] = \
+                        self.state_to_reward[state]
                 elif action == "left":
                     state_action_pair = ((x+1,y), action)
-                    reward_map_with_actions[state_action_pair] = reward_map[state]
+                    self.reward_map[state_action_pair] = \
+                        self.state_to_reward[state]
                 elif action == "down":
                     state_action_pair = ((x,y-1), action)
-                    reward_map_with_actions[state_action_pair] = reward_map[state]
+                    self.reward_map[state_action_pair] = \
+                        self.state_to_reward[state]
                 elif action == "right":
                     state_action_pair = ((x-1,y), action)
-                    reward_map_with_actions[state_action_pair] = reward_map[state]
-        return reward_map_with_actions
+                    self.reward_map[state_action_pair] = \
+                        self.state_to_reward[state]
 
+    # initialize the Q-table to value 0 for all state-action pairs
     def initialize_q_table(self):
         q_table = {}
         for x in range(1, self.x_limit+1):
@@ -46,6 +50,7 @@ class Environment:
                     q_table[(state, action)] = 0
         return q_table
 
+    # reset state in a random non-goal state
     def reset(self):
         while True:
             x = randint(1, self.x_limit)
@@ -54,6 +59,7 @@ class Environment:
                 break
         return (x, y)
 
+    # get step data resulting from taking a given action in a given state
     def step(self, state, action):
         next_state = self.state_transition(state, action)
         reward = self.reward(state, action)
@@ -63,7 +69,8 @@ class Environment:
             done = False
         return (next_state, reward, done)
 
-
+    # get the succeeding state resulting from taking a given action in a given
+    # state
     def state_transition(self, state, action):
         (x, y) = state
         if action == "up":
@@ -87,6 +94,7 @@ class Environment:
         else:
             return next_state
 
+    # get the reward that results from taking a given action in a given state
     def reward(self, state, action):
         if (state, action) in self.reward_map:
             return self.reward_map[(state, action)]
