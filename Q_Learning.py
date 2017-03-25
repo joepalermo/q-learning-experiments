@@ -29,14 +29,22 @@ def train_on_episode(episode_data, q_table):
         q_table.update(step_data, gamma)
 
 
-# training_log is a list of training episodes
-def determine_performance_improvement(training_log, interval_length):
+# take as input a list of training episodes and print a summary of the results
+# of training
+def print_training_results_summary(training_log):
     num_episodes = len(training_log)
     lengths_of_episodes = [len(episode_data) for episode_data in training_log]
-    interval_1 = lengths_of_episodes[0:interval_length]
-    interval_2 = lengths_of_episodes[num_episodes-interval_length:num_episodes]
-    print sum(interval_1)/float(len(interval_1))
-    print sum(interval_2)/float(len(interval_2))
+    n = 10
+    # compare the average length of the first n training episodes with the
+    # average length of the last n training episodes
+    first_interval = lengths_of_episodes[0:n]
+    early_performance = sum(first_interval)/float(len(first_interval))
+    print "The average length of the first " + str(n) + " episodes was " + \
+          str(early_performance)
+    last_interval = lengths_of_episodes[num_episodes-n:num_episodes]
+    late_performance = sum(last_interval)/float(len(last_interval))
+    print "The average length of the last " + str(n) + " episodes was " + \
+          str(late_performance)
 
 
 def main():
@@ -52,14 +60,11 @@ def main():
         # run through an episode to completion, returning the sequence of state,
         # action and reward values
         episode_data = run_episode(initial_state, q_table, env)
-        #print episode_data[0]
         training_log.append(episode_data)
         # update the q_table on the data from the most recent episode
         train_on_episode(episode_data, q_table)
 
-    # assess training results by comparing the average lengths of the
-    # first 10 training episodes against the average lenghts of the last 10
-    determine_performance_improvement(training_log, 10)
+    print_training_results_summary(training_log)
 
     # run comparative animations, before and after training
     run_animation(env.x_limit, env.y_limit, training_log[0])
