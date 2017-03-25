@@ -8,12 +8,10 @@ class Environment:
         self.y_limit = 5
         # define the action space
         self.action_space = ["up", "left", "down", "right"]
-        # define the reward value of a goal state
-        self.goal_reward = 100
         # define the goal states
         self.goal_states = [(5,5)]
         # construct a map from states to rewards
-        self.state_to_reward = {(5,5): self.goal_reward}
+        self.state_to_reward = {(5,5): 100}
         # construct a map from state-actions pairs to reward
         self.construct_reward_map()
 
@@ -63,10 +61,7 @@ class Environment:
     def step(self, state, action):
         next_state = self.state_transition(state, action)
         reward = self.reward(state, action)
-        if reward == self.goal_reward:
-            done = True
-        else:
-            done = False
+        done = next_state in self.goal_states
         return (next_state, reward, done)
 
     # get the succeeding state resulting from taking a given action in a given
