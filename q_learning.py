@@ -1,6 +1,6 @@
 from Environment import Environment
 from Q_Table import Q_Table
-from Agent_Animation import run_animation
+from agent_animation import run_animation
 
 # define parameters
 gamma = 0.9
