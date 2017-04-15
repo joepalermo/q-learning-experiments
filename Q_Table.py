@@ -1,3 +1,4 @@
+import numpy as np
 from random import shuffle
 
 class Q_Table:
@@ -11,16 +12,21 @@ class Q_Table:
         # get a shuffled version of self.action_space so that actions are
         # considered in random order, preventing an agent from getting stuck on
         # an edge of the environment
-        action_space = list(self.action_space)
-        shuffle(action_space)
-        action = action_space[0]
+        shuffle(self.action_space)
+        action = self.action_space[0]
         # best_action -> (current best action, corresponding reward)
         best_action = (action, self.q_table[(state, action)])
-        for i in range(1, len(action_space)):
-            action = action_space[i]
+        for i in range(1, len(self.action_space)):
+            action = self.action_space[i]
             if self.q_table[(state, action)] > best_action[1]:
                 best_action = (action, self.q_table[(state, action)])
         return best_action[0]
+
+    def get_best_action_prob(self, state):
+        q_table_values = [self.q_table[(state, action)] for action in self.action_space]
+        q_table_softmax_dist = softmax(q_table_values)
+        chosen_action = np.random.choice(self.action_space, 1, p=q_table_softmax_dist)[0]
+        return chosen_action
 
     # update the Q-table on the basis of step data
     def update(self, step_data, gamma):
@@ -28,3 +34,13 @@ class Q_Table:
         best_next_action = self.get_best_action(next_state)
         self.q_table[(state, action)] = \
         reward + gamma * self.q_table[(next_state, best_next_action)]
+
+
+# utilities --------------------------------------------------------------------
+
+# compute softmax over a set of scores x, modified by temperature value T
+# Note T=1 has no effect, higher values of T result in more randomness
+def softmax(x, T=1):
+    x = np.array(x) / T
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()
