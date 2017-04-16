@@ -140,7 +140,7 @@ class Network(object):
         return self.q_inpt()[0]
 
 
-    def SGD(self, training_data, eta, epochs=1, mini_batch_size=1,
+    def SGD(self, training_data, eta, epochs=10, mini_batch_size=1,
             lmbda=0.0, save_model_as=None):
 
         training_x, training_y = training_data
@@ -216,8 +216,10 @@ class FullyConnectedLayer(object):
         self.output_dropout = self.activation_fn(
             T.dot(self.inpt_dropout, self.w) + self.b)
 
-    # def cost(self, )
-    #     return np.sum(np.nan_to_num(-y*np.log(a)-(1-y)*np.log(1-a)))
+    def cost(self, net):
+        y = net.y
+        a = self.output_dropout
+        return T.sum(-y * T.log(a) - (1-y) * T.log(1-a))
 
     def accuracy(self, y):
         "Return the accuracy for the mini-batch."
