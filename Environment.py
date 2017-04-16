@@ -4,14 +4,14 @@ class Environment:
 
     def __init__(self):
         # define the boundary of the Environment
-        self.x_limit = 5
-        self.y_limit = 5
+        self.x_limit = 3
+        self.y_limit = 3
         # define the action space
         self.action_space = ["up", "left", "down", "right"]
-        # define the goal states
-        self.goal_states = [(5,5)]
+        # define the goal state
+        self.goal_states = [(3,3)]
         # construct a map from states to rewards
-        self.state_to_reward = {(5,5): 100}
+        self.state_to_reward = {(3,3): 1}
         # construct a map from state-actions pairs to reward
         self.construct_reward_map()
 
