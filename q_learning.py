@@ -4,8 +4,8 @@ from agent_animation import run_animation
 
 # define parameters
 gamma = 0.9
-training_epochs = 1
-episodes_per_epoch = 1
+training_epochs = 10
+episodes_per_epoch = 5
 
 def main():
     # initializations
@@ -15,6 +15,7 @@ def main():
 
     # training loop
     for _ in range(training_epochs):
+        print "epoch"
         for _ in range(episodes_per_epoch):
             # reset the state to a random position in the environment
             initial_state = env.reset()
@@ -27,11 +28,11 @@ def main():
         #update the q_network
         q_network.train(epoch_data, gamma)
 
-    # print_training_results_summary(training_log)
-    #
-    # # run comparative animations, before and after training
-    # run_animation(env.x_limit, env.y_limit, training_log[0])
-    # run_animation(env.x_limit, env.y_limit, training_log[-1])
+    print_training_results_summary(training_log)
+
+    # run comparative animations, before and after training
+    run_animation(env.x_limit, env.y_limit, training_log[0])
+    run_animation(env.x_limit, env.y_limit, training_log[-1])
 
 
 def run_episode(state, q_network, env):

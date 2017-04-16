@@ -59,7 +59,7 @@ class Q_Network:
         return chosen_action
 
 
-    def train(self, epoch_data, gamma, eta=0.5):
+    def train(self, epoch_data, gamma, eta=0.2):
         training_data = self.construct_training_data(epoch_data, gamma)
         self.network.SGD(training_data, eta)
 
@@ -92,7 +92,6 @@ class Q_Network:
                 best_next_action = self.get_best_action(next_state)
                 y = reward + gamma * self.network.q(next_state, best_next_action)
                 training_y.append(y)
-                #print state, x, y
         training_x = np.array(training_x)
         training_y = np.array(training_y)
         return shared(training_x, training_y)
