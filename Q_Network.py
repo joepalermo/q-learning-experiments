@@ -58,8 +58,17 @@ class Q_Network:
         chosen_action = np.random.choice(self.action_space, 1, p=q_table_softmax_dist)[0]
         return chosen_action
 
+    def print_q_function(self):
+        for i in range(1, self.x_limit+1):
+            for j in range(1, self.y_limit+1):
+                for action in self.action_space:
+                    state = (i,j)
+                    # inpt = self.network.construct_input(state, action)
+                    q_value = self.network.q(state, action)
+                    print (i, j), action, q_value
 
-    def train(self, epoch_data, gamma, eta=0.2):
+
+    def train(self, epoch_data, gamma, eta=2):
         training_data = self.construct_training_data(epoch_data, gamma)
         self.network.SGD(training_data, eta)
 
@@ -100,7 +109,7 @@ class Q_Network:
 
 # compute softmax over a set of scores x, modified by temperature value T
 # Note T=1 has no effect, higher values of T result in more randomness
-def softmax(x, T=5):
+def softmax(x, T=3):
     x = np.array(x) / T
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()
