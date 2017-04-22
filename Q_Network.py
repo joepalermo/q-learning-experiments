@@ -38,12 +38,22 @@ class Q_Network:
 
     # train the q-network on an epoch of training data
     def train(self, epoch_data, gamma, eta):
-        training_data = self.construct_training_data(epoch_data, gamma)
-        #print "training data:"
-        #for i in range(training_data):
-        #print training_data[0][0], training_data[0][1]
-        # train the network on the epoch data
-        #self.network.SGD(training_data, eta)
+        for episode_data in epoch_data:
+            # count backwards through each episode
+            for i in range(len(episode_data)-1, -1, -1):
+                (state, action, reward, next_state) = episode_data[i]
+                # construct input
+                x = self.construct_input(state, action)
+                # construct label
+                best_next_action = self.get_best_action(next_state)
+                x_prime = self.construct_input(next_state, best_next_action)
+                y = reward + gamma * self.network.feedforward(x_prime)
+                y = normalize_y(y)
+                # contruct the training example
+                training_example = (x,y)
+                # update the network on the basis of the training example
+                self.network.update(training_example, eta)
+
 
     # encode the state-action pair as an numpy array
     # goal is also included implicitly as part of the state
@@ -65,24 +75,6 @@ class Q_Network:
         inpt[offset + action_index] = 1
         return inpt
 
-    # construct training_data of form -> (inpt array, q_value)
-    # where inpt_array is an encoding of a state-action pair,
-    # and q_value is a estimate for the q_value of that pair
-    def construct_training_data(self, epoch_data, gamma):
-        training_data = []
-        for episode_data in epoch_data:
-            # count backwards through each episode
-            for i in range(len(episode_data)-1, -1, -1):
-                (state, action, reward, next_state) = episode_data[i]
-                # construct input
-                x = self.construct_input(state, action)
-                # construct label
-                best_next_action = self.get_best_action(next_state)
-                x_prime = self.construct_input(next_state, best_next_action)
-                y = reward + gamma * self.network.feedforward(x_prime)
-                training_data.append((x,y))
-        return training_data
-
     def print_q_function(self):
         for i in range(1, self.x_limit+1):
             for j in range(1, self.y_limit+1):
@@ -96,7 +88,7 @@ class Q_Network:
 
 # compute softmax over a set of scores x, modified by temperature value T
 # Note T=1 has no effect, higher values of T result in more randomness
-def softmax(x, T=3):
+def softmax(x, T=1):
     x = np.array(x) / T
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()
@@ -106,6 +98,14 @@ def state_to_index(state):
     (x, y) = (state[0] - 1, state[1] - 1)
     return x + 3 * y
 
+# ensure that y remains in the range 0 -> 1
+def normalize_y(y):
+    if y > 1:
+        return np.ones((1,1))
+    elif y < 0:
+        return np.zeros((1,1))
+    else:
+        return y
 
 def unit_testing():
     env = Environment()
