@@ -2,21 +2,25 @@ from Environment import Environment
 from Q_Network import Q_Network
 from agent_animation import run_animation
 
-# define parameters
-gamma = 0.9
-eta = 1
-training_epochs = 1
-episodes_per_epoch = 1
+
 
 def main():
+    # define training parameters
+    eta = 1
+    gamma = 0.5
+    training_epochs = 5
+    episodes_per_epoch = 50
     # initializations
     training_log = []
     env = Environment()
     q_network = Q_Network(env)
 
+    q_network.print_q_function()
+
     # training loop
-    for _ in range(training_epochs):
-        print "epoch"
+    for i in range(1, training_epochs + 1):
+        print "epoch " + str(i)
+        eta -= 0.1
         for _ in range(episodes_per_epoch):
             # reset the state to a random position in the environment
             initial_state = env.reset()
@@ -29,9 +33,11 @@ def main():
         #update the q_network
         q_network.train(epoch_data, gamma, eta)
 
-    #q_network.print_q_function()
+    q_network.print_q_function()
 
     print_training_results_summary(training_log)
+
+    #print [len(episode) for episode in training_log]
 
     # run comparative animations, before and after training
     run_animation(env.x_limit, env.y_limit, training_log[0])
@@ -57,17 +63,17 @@ def run_episode(state, q_network, env):
 def print_training_results_summary(training_log):
     num_episodes = len(training_log)
     lengths_of_episodes = [len(episode_data) for episode_data in training_log]
-    n = 10
+    n = 25
     # compare the average length of the first n training episodes with the
     # average length of the last n training episodes
     first_interval = lengths_of_episodes[0:n]
     early_performance = sum(first_interval)/float(len(first_interval))
     print "The average length of the first " + str(n) + " episodes was " + \
-          str(early_performance)
+          str(int(early_performance))
     last_interval = lengths_of_episodes[num_episodes-n:num_episodes]
     late_performance = sum(last_interval)/float(len(last_interval))
     print "The average length of the last " + str(n) + " episodes was " + \
-          str(late_performance)
+          str(int(late_performance))
 
 
 main()
