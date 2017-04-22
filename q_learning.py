@@ -4,7 +4,8 @@ from agent_animation import run_animation
 
 # define parameters
 gamma = 0.9
-training_epochs = 5
+eta = 1
+training_epochs = 1
 episodes_per_epoch = 1
 
 def main():
@@ -26,7 +27,7 @@ def main():
         # extract the training data for the epoch
         epoch_data = training_log[-episodes_per_epoch:]
         #update the q_network
-        q_network.train(epoch_data, gamma)
+        q_network.train(epoch_data, gamma, eta)
 
     q_network.print_q_function()
 

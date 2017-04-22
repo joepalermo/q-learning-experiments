@@ -28,6 +28,29 @@ class Q_Network:
         # initialize the network weights
         self.network = Network(self.layers, env)
 
+    def get_best_action(self, state):
+        q_values = [self.network.q(state, action) for action in self.action_space]
+        max_q_value = max(q_values)
+        best_action_i = q_values.index(max_q_value)
+        return self.action_space[best_action_i]
+
+    def get_best_action_prob(self, state):
+        q_table_values = [self.network.q(state, action) for action in self.action_space]
+        q_table_softmax_dist = softmax(q_table_values)
+        chosen_action = np.random.choice(self.action_space, 1, p=q_table_softmax_dist)[0]
+        return chosen_action
+
+    def train(self, epoch_data, gamma, eta):
+        training_data = self.construct_training_data(epoch_data, gamma)
+        print "training data:"
+        shared_training_x = training_data[0]
+        shared_training_y = training_data[1]
+        training_x = shared_training_x.get_value()
+        training_y = shared_training_y.get_value()
+        for i in range(training_x.shape[0]):
+            print training_x[i], training_y[i]
+        self.network.SGD(training_data, eta)
+
     def construct_mb_input_row(self, state, action):
         # set the one-hot component for the state
         inpt = np.asarray(np.zeros(self.input_size), dtype='float32')
@@ -45,34 +68,6 @@ class Q_Network:
         inpt[offset + action_index] = 1
         return inpt
 
-
-    def get_best_action(self, state):
-        q_values = [self.network.q(state, action) for action in self.action_space]
-        max_q_value = max(q_values)
-        best_action_i = q_values.index(max_q_value)
-        return self.action_space[best_action_i]
-
-    def get_best_action_prob(self, state):
-        q_table_values = [self.network.q(state, action) for action in self.action_space]
-        q_table_softmax_dist = softmax(q_table_values)
-        chosen_action = np.random.choice(self.action_space, 1, p=q_table_softmax_dist)[0]
-        return chosen_action
-
-    def print_q_function(self):
-        for i in range(1, self.x_limit+1):
-            for j in range(1, self.y_limit+1):
-                for action in self.action_space:
-                    state = (i,j)
-                    # inpt = self.network.construct_input(state, action)
-                    q_value = self.network.q(state, action)
-                    print (i, j), action, q_value
-
-
-    def train(self, epoch_data, gamma, eta=2):
-        training_data = self.construct_training_data(epoch_data, gamma)
-        self.network.SGD(training_data, eta)
-
-
     # training_data -> (inpt_matrix, label_matrix)
     # inpt_matrix -> np.array of dim (num_states, num_features)
     # label_matrix -> np.array of dim (num_states, 1)
@@ -85,8 +80,9 @@ class Q_Network:
             shared_x = theano.shared(
                 np.asarray(x, dtype=theano.config.floatX), borrow=True)
             shared_y = theano.shared(
-                np.asarray(y, dtype=theano.config.floatX), borrow=True)
-            return shared_x, T.cast(shared_y, "int32")
+                np.asarray(y, dtype='int32'), borrow=True)
+            #return shared_x, T.cast(shared_y, "int32")
+            return shared_x, shared_y
 
         training_x = []
         training_y = []
@@ -104,6 +100,15 @@ class Q_Network:
         training_x = np.array(training_x)
         training_y = np.array(training_y)
         return shared(training_x, training_y)
+
+    def print_q_function(self):
+        for i in range(1, self.x_limit+1):
+            for j in range(1, self.y_limit+1):
+                for action in self.action_space:
+                    state = (i,j)
+                    # inpt = self.network.construct_input(state, action)
+                    q_value = self.network.q(state, action)
+                    print (i, j), action, q_value
 
 # utilities --------------------------------------------------------------------
 
