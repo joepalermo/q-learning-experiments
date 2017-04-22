@@ -29,7 +29,7 @@ def main():
         #update the q_network
         q_network.train(epoch_data, gamma, eta)
 
-    q_network.print_q_function()
+    #q_network.print_q_function()
 
     print_training_results_summary(training_log)
 
