@@ -36,23 +36,28 @@ class Q_Network:
         chosen_action = np.random.choice(self.action_space, 1, p=softmax_dist)[0]
         return chosen_action
 
+    # train the q-network on a single episode of training data
+    def episode_train(self, episode_data, gamma, eta):
+        # count backwards through each episode
+        for i in range(len(episode_data)-1, -1, -1):
+            (state, action, reward, next_state) = episode_data[i]
+            # construct input
+            x = self.construct_input(state, action)
+            # construct label
+            best_next_action = self.get_best_action(next_state)
+            x_prime = self.construct_input(next_state, best_next_action)
+            y = reward + gamma * self.network.feedforward(x_prime)
+            y = normalize_y(y)
+            # contruct the training example
+            training_example = (x,y)
+            # update the network on the basis of the training example
+            self.network.update(training_example, eta)
+
+
     # train the q-network on an epoch of training data
-    def train(self, epoch_data, gamma, eta):
+    def epoch_train(self, epoch_data, gamma, eta):
         for episode_data in epoch_data:
-            # count backwards through each episode
-            for i in range(len(episode_data)-1, -1, -1):
-                (state, action, reward, next_state) = episode_data[i]
-                # construct input
-                x = self.construct_input(state, action)
-                # construct label
-                best_next_action = self.get_best_action(next_state)
-                x_prime = self.construct_input(next_state, best_next_action)
-                y = reward + gamma * self.network.feedforward(x_prime)
-                y = normalize_y(y)
-                # contruct the training example
-                training_example = (x,y)
-                # update the network on the basis of the training example
-                self.network.update(training_example, eta)
+            self.episode_train(episode_data, gamma, eta)
 
 
     # encode the state-action pair as an numpy array
