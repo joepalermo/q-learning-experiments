@@ -37,7 +37,9 @@ class Q_Network:
         return chosen_action
 
     # train the q-network on a single episode of training data
-    def episode_train(self, episode_data, gamma, eta):
+    def episode_train(self, episode_data, **learning_parameters):
+        gamma = learning_parameters['gamma']
+        eta = learning_parameters['eta']
         # count backwards through each episode
         for i in range(len(episode_data)-1, -1, -1):
             (state, action, reward, next_state) = episode_data[i]
@@ -55,7 +57,9 @@ class Q_Network:
 
 
     # train the q-network on an epoch of training data
-    def epoch_train(self, epoch_data, gamma, eta):
+    def epoch_train(self, epoch_data, **learning_parameters):
+        gamma = learning_parameters['gamma']
+        eta = learning_parameters['eta']
         for episode_data in epoch_data:
             self.episode_train(episode_data, gamma, eta)
 

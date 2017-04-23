@@ -7,6 +7,10 @@ class Q_Table:
         self.action_space = env.action_space
         self.q_table = env.initialize_q_table()
 
+    def pprint(self):
+        for ((state, action), q_value) in sorted(self.q_table.items()):
+            print str((state, action)) + ", " + str(q_value)
+
     # get the best action from a given state according to current Q-table
     def get_best_action(self, state):
         # get a shuffled version of self.action_space so that actions are
@@ -27,6 +31,14 @@ class Q_Table:
         q_table_softmax_dist = softmax(q_table_values)
         chosen_action = np.random.choice(self.action_space, 1, p=q_table_softmax_dist)[0]
         return chosen_action
+
+    def episode_train(self, episode_data, **learning_parameters):
+        gamma = learning_parameters['gamma']
+        # loop backwards through episode_data, since that is the order in which
+        # we want to do updates
+        for i in range(len(episode_data)-1, -1, -1):
+            step_data = episode_data[i]
+            self.update(step_data, gamma)
 
     # update the Q-table on the basis of step data
     def update(self, step_data, gamma):
