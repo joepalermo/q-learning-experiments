@@ -80,7 +80,7 @@ class Q_Network:
         inpt[offset + action_index] = 1
         return inpt
 
-    def print_q_function(self):
+    def pprint(self):
         for i in range(1, self.x_limit+1):
             for j in range(1, self.y_limit+1):
                 for action in self.action_space:
