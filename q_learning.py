@@ -14,9 +14,9 @@ def main():
     # initializations
     training_log = []
     env = Environment()
-    q_network = Q_Network(env)
+    q_function = Q_Network(env)
 
-    q_network.print_q_function()
+    q_network.pprint()
 
     # training loop
     for i in range(1, training_epochs + 1):
@@ -32,12 +32,7 @@ def main():
             #train the q_network on the recently completed episode
             q_network.episode_train(episode_data, gamma, eta)
 
-        # extract the training data for the epoch
-        #epoch_data = training_log[-episodes_per_epoch:]
-        # train the q_network on an epoch
-        #q_network.train(epoch_data, gamma, eta)
-
-    q_network.print_q_function()
+    q_network.pprint()
 
     print_training_results_summary(training_log)
 
