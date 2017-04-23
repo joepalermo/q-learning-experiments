@@ -6,8 +6,9 @@ from agent_animation import run_animation
 
 def main():
     # define training parameters
-    eta = 1
     gamma = 0.5
+    eta = 1
+    learning_parameters = [gamma, eta]
     training_epochs = 5
     episodes_per_epoch = 50
     # initializations
@@ -28,10 +29,13 @@ def main():
             # action and reward values
             episode_data = run_episode(initial_state, q_network, env)
             training_log.append(episode_data)
+            #train the q_network on the recently completed episode
+            q_network.episode_train(episode_data, gamma, eta)
+
         # extract the training data for the epoch
-        epoch_data = training_log[-episodes_per_epoch:]
-        #update the q_network
-        q_network.train(epoch_data, gamma, eta)
+        #epoch_data = training_log[-episodes_per_epoch:]
+        # train the q_network on an epoch
+        #q_network.train(epoch_data, gamma, eta)
 
     q_network.print_q_function()
 
