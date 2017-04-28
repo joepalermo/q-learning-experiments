@@ -97,7 +97,7 @@ class Q_Network:
 
 # compute softmax over a set of scores x, modified by temperature value T
 # Note T=1 has no effect, higher values of T result in more randomness
-def softmax(x, T=1):
+def softmax(x, T=0.1):
     x = np.array(x) / T
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()

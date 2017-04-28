@@ -102,7 +102,6 @@ def get_episode_states(episode_data):
 
 # re-generate the grid given its size and the positions of various entities
 def generate_grid(num_rows, num_cols, entity_map):
-    (x,y) = agent_position
     grid = [[0 for _ in range(num_cols)] for _ in range(num_rows)]
     for entity,(x,y) in entity_map.items():
         grid[y][x] = entity
