@@ -22,8 +22,9 @@ MARGIN = 5
 # define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 # set the update interval to 200 ms
 UPDATE_INTERVAL = 200
@@ -63,12 +64,13 @@ def run_animation(num_cols, num_rows, episode_data):
             state = episode_states[state_index]
             state_index += 1
 
-            # extract (x, y) position of the agent and convert to
-            # 0-based indexing
-            agent_position = (state[0]-1, state[1]-1)
+            # convert state to an analogous dict with 0-based indexing
+            entity_map = {}
+            entity_map['agent'] = (state['agent'][0]-1, state['agent'][1]-1)
+            entity_map['goal'] = (state['goal'][0]-1, state['goal'][1]-1)
 
             # generate an updated representation of the grid
-            grid = generate_grid(num_rows, num_cols, agent_position)
+            grid = generate_grid(num_rows, num_cols, entity_map)
 
             # update the screen with the current contents of the grid
             update_screen(screen, grid)
@@ -98,11 +100,12 @@ def get_episode_states(episode_data):
     episode_states.append(episode_data[-1][3])
     return episode_states
 
-# re-generate the grid given its size and the agent's position
-def generate_grid(num_rows, num_cols, agent_position):
+# re-generate the grid given its size and the positions of various entities
+def generate_grid(num_rows, num_cols, entity_map):
     (x,y) = agent_position
     grid = [[0 for _ in range(num_cols)] for _ in range(num_rows)]
-    grid[y][x] = 1
+    for entity,(x,y) in entity_map.items():
+        grid[y][x] = entity
     return grid
 
 # update the screen with the current contents of the grid
@@ -115,9 +118,10 @@ def update_screen(screen, grid):
     for row in range(num_rows):
         for column in range(num_cols):
             color = WHITE
-            # if the value at a given row and column is 1, that is the agent's
-            # location, thus set color to a non-white value
-            if grid[row][column] == 1:
+            # color a goal square green
+            if grid[row][column] == 'agent':
+                color = BLUE
+            elif grid[row][column] == 'goal':
                 color = GREEN
             # define the square (rectangle) to draw
             rectangle_left_edge = (MARGIN + WIDTH) * column + MARGIN
