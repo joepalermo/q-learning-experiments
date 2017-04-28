@@ -38,16 +38,6 @@ class Environment:
                     self.reward_map[state_action_pair] = \
                         self.state_to_reward[state]
 
-    # initialize the Q-table to value 0 for all state-action pairs
-    def initialize_q_table(self):
-        q_table = {}
-        for x in range(1, self.x_limit+1):
-            for y in range(1, self.y_limit+1):
-                for action in self.action_space:
-                    state = (x, y)
-                    q_table[(state, action)] = 0
-        return q_table
-
     # reset state in a random non-goal state
     def reset(self):
         while True:
@@ -56,13 +46,6 @@ class Environment:
             if (x, y) not in self.goal_states:
                 break
         return (x, y)
-
-    # get step data resulting from taking a given action in a given state
-    def step(self, state, action):
-        next_state = self.state_transition(state, action)
-        reward = self.reward(state, action)
-        done = next_state in self.goal_states
-        return (next_state, reward, done)
 
     # get the succeeding state resulting from taking a given action in a given
     # state
@@ -89,9 +72,26 @@ class Environment:
         else:
             return next_state
 
+    # get step data resulting from taking a given action in a given state
+    def step(self, state, action):
+        next_state = self.state_transition(state, action)
+        reward = self.reward(state, action)
+        done = next_state in self.goal_states
+        return (next_state, reward, done)
+
     # get the reward that results from taking a given action in a given state
     def reward(self, state, action):
         if (state, action) in self.reward_map:
             return self.reward_map[(state, action)]
         else:
             return 0
+
+    # initialize the Q-table to value 0 for all state-action pairs
+    def initialize_q_table(self):
+        q_table = {}
+        for x in range(1, self.x_limit+1):
+            for y in range(1, self.y_limit+1):
+                for action in self.action_space:
+                    state = (x, y)
+                    q_table[(state, action)] = 0
+        return q_table
