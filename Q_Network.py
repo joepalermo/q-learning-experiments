@@ -2,7 +2,8 @@ import network2
 import numpy as np
 import time
 
-from Environment import Environment
+from Moving_Goal_Env import Moving_Goal_Env
+from Classic_Env import Classic_Env
 
 
 class Q_Network:
@@ -11,7 +12,6 @@ class Q_Network:
         # extract relevant environment data
         self.x_limit = env.x_limit
         self.y_limit = env.y_limit
-        self.goal_states = env.goal_states
         self.action_space = env.action_space
         # the input size determines the network architecture
         self.input_size = 2 * self.x_limit * self.y_limit + len(self.action_space)
@@ -70,14 +70,12 @@ class Q_Network:
     def construct_input(self, state, action):
         # set the one-hot component for the state
         inpt = np.asarray(np.zeros((self.input_size, 1)))
-        state_index = state_to_index(state)
+        state_index = self.state_to_index(state['agent'])
         inpt[state_index] = 1
         offset = self.x_limit * self.y_limit
-        # assume there is only one goal
         # set the one-hot component for the goals
-        goal_indices = [state_to_index(goal_state) for goal_state in self.goal_states]
-        for i in goal_indices:
-            inpt[offset + i] = 1
+        goal_index = self.state_to_index(state['goal'])
+        inpt[offset + goal_index] = 1
         offset += self.x_limit * self.y_limit
         # set the one-hot component for the action
         action_index = self.action_space.index(action)
@@ -85,13 +83,21 @@ class Q_Network:
         return inpt
 
     def pprint(self):
-        for i in range(1, self.x_limit+1):
-            for j in range(1, self.y_limit+1):
-                for action in self.action_space:
-                    state = (i,j)
-                    inpt = self.construct_input(state, action)
-                    q_value = self.network.output(inpt)
-                    print (i, j), action, q_value
+        for agent_x in range(1, self.x_limit+1):
+            for agent_y in range(1, self.y_limit+1):
+                for goal_x in range(1, self.x_limit+1):
+                    for goal_y in range(1, self.y_limit+1):
+                        for action in self.action_space:
+                            state = {'agent': (agent_x, agent_y),
+                                     'goal': (goal_x, goal_y)}
+                            inpt = self.construct_input(state, action)
+                            q_value = self.network.output(inpt)
+                            print state, action, q_value
+
+    # given a state in R ^ 2, find its index counting along successive rows
+    def state_to_index(self, state):
+        (x, y) = (state[0] - 1, state[1] - 1)
+        return x + self.x_limit * y
 
 # utilities --------------------------------------------------------------------
 
@@ -101,11 +107,6 @@ def softmax(x, T=0.1):
     x = np.array(x) / T
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()
-
-# given a state in R ^ 2, find its index counting along successive rows
-def state_to_index(state):
-    (x, y) = (state[0] - 1, state[1] - 1)
-    return x + 3 * y
 
 # ensure that y remains in the range 0 -> 1
 def normalize_y(y):
@@ -117,16 +118,11 @@ def normalize_y(y):
         return y
 
 def unit_testing():
-    env = Environment()
+    env = Moving_Goal_Env()
     q_net = Q_Network(env)
-    state = (1,1)
+    state = {'agent': (1,2), 'goal': (5,5)}
     action = "down"
-    print q_net.network.construct_input(state, action)
-    state = (1,3)
-    action = "down"
-    print q_net.network.construct_input(state, action)
-    state = (3,3)
-    action = "down"
-    print q_net.network.construct_input(state, action)
+    print q_net.construct_input(state, action)
 
-#unit_testing()
+
+unit_testing()
