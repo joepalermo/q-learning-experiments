@@ -1,5 +1,9 @@
 from random import randint
 
+class hashabledict(dict):
+    def __hash__(self):
+        return hash(tuple(sorted(self.items())))
+
 class Moving_Goal_Env:
 
     def __init__(self):
@@ -17,9 +21,9 @@ class Moving_Goal_Env:
             agent_y = randint(1, self.y_limit)
             goal_x = randint(1, self.x_limit)
             goal_y = randint(1, self.y_limit)
-            if (agent_x, agent_y) != (goal_x, goal_y)
+            if (agent_x, agent_y) != (goal_x, goal_y):
                 break
-        return {'agent': (agent_x, agent_y), 'goal': (goal_x, goal_y)}
+        return hashabledict({'agent': (agent_x, agent_y), 'goal': (goal_x, goal_y)})
 
     # get the succeeding state resulting from taking a given action in a given
     # state
@@ -77,7 +81,7 @@ class Moving_Goal_Env:
 
     # get the reward that results from arriving it to a particular state
     def reward(self, state):
-        if state['agent'] == next_state['goal']
+        if state['agent'] == state['goal']:
             return self.reward_map['found_goal']
         else:
             return 0
