@@ -11,7 +11,7 @@ class Moving_Goal_Env:
         self.x_limit = 5
         self.y_limit = 5
         # define the action space
-        self.action_space = ["up", "left", "down", "right"]
+        self.action_space = ["up", "left", "down", "right", "null"]
         self.reward_map = {'found_goal': 1}
 
     # reset state in a random non-goal state
@@ -38,6 +38,8 @@ class Moving_Goal_Env:
             next_agent_state = (agent_x-1, agent_y)
         elif action == "right":
             next_agent_state = (agent_x+1, agent_y)
+        elif action == "null":
+            next_agent_state = (agent_x, agent_y)
         # correct for the possibility of agent state going out of bounds
         if next_agent_state[0] > self.x_limit:
             next_agent_state = (self.x_limit, next_agent_state[1])
@@ -59,6 +61,8 @@ class Moving_Goal_Env:
             next_goal_state = (goal_x-1, goal_y)
         elif goal_action == "right":
             next_goal_state = (goal_x+1, goal_y)
+        elif goal_action == "null":
+            next_goal_state = (goal_x, goal_y)
         # correct for the possibility of agent state going out of bounds
         if next_goal_state[0] > self.x_limit:
             next_goal_state = (self.x_limit, next_goal_state[1])
