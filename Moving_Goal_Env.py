@@ -1,6 +1,6 @@
 from random import randint
 
-class Environment:
+class Moving_Goal_Env:
 
     def __init__(self):
         # define the boundary of the Environment
