@@ -12,6 +12,7 @@ class Moving_Goal_Env:
         self.y_limit = 5
         # define the action space
         self.action_space = ["up", "left", "down", "right", "null"]
+        self.goal_action_space = ["null"]
         self.reward_map = {'found_goal': 1}
 
     # reset state in a random non-goal state
@@ -19,8 +20,10 @@ class Moving_Goal_Env:
         while True:
             agent_x = randint(1, self.x_limit)
             agent_y = randint(1, self.y_limit)
-            goal_x = randint(1, self.x_limit)
-            goal_y = randint(1, self.y_limit)
+            # goal_x = randint(1, self.x_limit)
+            # goal_y = randint(1, self.y_limit)
+            goal_x = 5
+            goal_y = 5
             if (agent_x, agent_y) != (goal_x, goal_y):
                 break
         return hashabledict({'agent': (agent_x, agent_y), 'goal': (goal_x, goal_y)})
@@ -52,7 +55,7 @@ class Moving_Goal_Env:
 
         # acount for the goal's movement
         (goal_x, goal_y) = state['goal']
-        goal_action = self.action_space[randint(0, len(self.action_space)-1)]
+        goal_action = self.goal_action_space[randint(0, len(self.goal_action_space)-1)]
         if goal_action == "up":
             next_goal_state = (goal_x, goal_y-1)
         elif goal_action == "down":

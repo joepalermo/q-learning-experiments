@@ -8,9 +8,9 @@ from agent_animation import run_animation
 
 def main():
     # define training parameters
-    learning_parameters = {'gamma': 0.5, 'eta': 0.5}
-    training_epochs = 1
-    episodes_per_epoch = 1
+    learning_parameters = {'gamma': 0.5, 'eta': 1}
+    training_epochs = 5
+    episodes_per_epoch = 50
     # initializations
     training_log = []
     env = Moving_Goal_Env()
@@ -18,7 +18,7 @@ def main():
     q_function = Q_Table(env)
 
     # visualize pre-training q_function
-    #q_function.pprint()
+    q_function.pprint()
 
     # training loop
     for i in range(1, training_epochs + 1):
@@ -34,7 +34,7 @@ def main():
             q_function.episode_train(episode_data, **learning_parameters)
 
     # visualize post-training q_function
-    #q_function.pprint()
+    q_function.pprint()
 
     print_training_results_summary(training_log)
 
@@ -59,10 +59,9 @@ def run_episode(state, q_function, env):
 
 # take as input a list of training episodes and print a summary of the results
 # of training
-def print_training_results_summary(training_log):
+def print_training_results_summary(training_log, n=50):
     num_episodes = len(training_log)
     lengths_of_episodes = [len(episode_data) for episode_data in training_log]
-    n = 50
     # compare the average length of the first n training episodes with the
     # average length of the last n training episodes
     first_interval = lengths_of_episodes[0:n]
